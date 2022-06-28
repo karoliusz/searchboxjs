@@ -4,20 +4,20 @@ import scss from 'rollup-plugin-scss';
 import { defineConfig } from 'rollup';
 import nodeResolve from '@rollup/plugin-node-resolve';
 
-const name = 'dist/searchboxjs';
+const scriptFileName = 'searchboxjs';
 const iifeName = 'SearchBoxJS';
 
 const configs = [
   defineConfig({
     input: 'src/index.ts',
-    external: ['rxjs', 'rxjs/operators'],
+    external: ['rxjs', 'rxjs/operators', './scss/main.scss'],
     plugins: [
       scss(),
       esbuild(),
     ],
     output: [
       {
-        file: `${name}.js`,
+        file: `dist/${scriptFileName}.js`,
         format: 'es',
         sourcemap: true,
       }
@@ -25,7 +25,6 @@ const configs = [
   }),
   defineConfig({
     input: 'src/index.ts',
-    external: ['./scss/main.scss'],
     plugins: [
       nodeResolve(),
       esbuild({
@@ -35,11 +34,17 @@ const configs = [
     ],
     output: [
       {
-        file: `${name}.min.js`,
+        file: `dist/${scriptFileName}.min.js`,
         format: 'iife',
         sourcemap: true,
         name: iifeName
-      }
+      },
+      {
+        file: `demo/${scriptFileName}.min.js`,
+        format: 'iife',
+        sourcemap: true,
+        name: iifeName
+      },
     ],
   }),
   defineConfig({
@@ -47,7 +52,7 @@ const configs = [
     external: ['rxjs', 'rxjs/operators', './scss/main.scss'],
     plugins: [dts()],
     output: {
-      file: `${name}.d.ts`,
+      file: `dist/${scriptFileName}.d.ts`,
       format: 'es',
     },
   })

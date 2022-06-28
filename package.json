@@ -6,7 +6,9 @@
   "types": "dist/searchboxjs.d.ts",
   "browserslist": "defaults",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "demo": "http-server ./demo"
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
     "@tsconfig/recommended": "^1.0.1",
     "@types/rollup": "^0.54.0",
     "esbuild": "^0.14.30",
+    "http-server": "^14.1.1",
     "rollup": "^2.70.1",
     "rollup-plugin-dts": "^4.2.0",
     "rollup-plugin-esbuild": "^4.8.2",
