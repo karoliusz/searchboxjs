@@ -1,0 +1,22 @@
+[
+    {
+      "title": "This is a post",
+      "url": "/posts/a-post/"
+    },
+    {
+      "title": "Just an example title to show how this stuff works",
+      "url": "/posts/example-title/"
+    },
+    {
+      "title": "Nothing but a non-existent blog article",
+      "url": "/posts/no-such-article/"
+    },
+    {
+      "title": "How to grow tasty tomatos",
+      "url": "/posts/tasty-tomatos"
+    },
+    {
+      "title": "Haruomi Hosono's Paraiso is a cool music album worth checking out",
+      "url": "/posts/paraiso"
+    }
+]
