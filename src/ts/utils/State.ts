@@ -1,40 +1,49 @@
-type StateSubscriber<StateType> = (state: StateType) => void;
+import { BehaviorSubject, distinctUntilChanged, Observable } from 'rxjs';
 
-export class State<T> {
-    private state: T = null;
+import { StateCompareFn } from '../interfaces';
+
+export class State<T extends object> {
+    static areEqualShallow(a: object, b: object): boolean {
+        for (let key in a) {
+            if (!(key in b) || a[key] !== b[key]) {
+                return false;
+            }
+        }
+
+        for (let key in b) {
+            if (!(key in a)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private lastBroadcastedState: T = null;
-    private subscribers = new Set<StateSubscriber<T>>();
+    private compareState: StateCompareFn<T>;
+
+    private stateSource: BehaviorSubject<T>;
+    private _state$: Observable<T>;
+
+    public get state$(): Observable<T> {
+        return this._state$;
+    }
 
     constructor(initialState: T) {
-        this.state = { ...initialState };
+        this.lastBroadcastedState = { ...initialState };
+        this.compareState = this.defaultCompareState;
+        this.stateSource = new BehaviorSubject(this.lastBroadcastedState);
+        this._state$ = this.stateSource.pipe(
+            distinctUntilChanged(this.compareState)
+        );
     }
 
-    public setState(state: Partial<T>) {
-        this.state = { ...this.state, ...state };
-        this.broadcast();
-
-        return this.getState();
+    public setState(state: Partial<T>): void {
+        this.lastBroadcastedState = { ...this.lastBroadcastedState, ...state };
+        this.stateSource.next(this.lastBroadcastedState);
     }
 
-    public getState(): T {
-        return { ...this.state };
-    }
-
-    public subscribe(subscriberFn: StateSubscriber<T>) {
-        this.subscribers.add(subscriberFn);
-
-        return () => {
-            this.subscribers.delete(subscriberFn);
-        };
-    }
-
-    private broadcast() {
-        const state = this.getState();
-
-        // TODO: Compare states, allow to pass custom compare function
-        // if (this.lastBroadcastedState !== state) {};
-
-        this.lastBroadcastedState = { ...state };
-        this.subscribers.forEach(subscriber => subscriber(state));
+    private defaultCompareState(a: T, b: T): boolean {
+        return State.areEqualShallow(a, b);
     }
 }
