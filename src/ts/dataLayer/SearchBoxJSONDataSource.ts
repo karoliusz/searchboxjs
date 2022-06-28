@@ -1,4 +1,4 @@
-import { SearchBoxDataSource } from "./SearchBoxDataSource.interface";
+import { SearchBoxDataSource } from "./interfaces";
 
 export class SearchBoxJSONDataSource<T> implements SearchBoxDataSource<T> {
     private items: Promise<T[]> = null;
