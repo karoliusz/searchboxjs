@@ -1,0 +1,11 @@
+body {
+    font-family: sans-serif;
+    font-size: 18px;
+}
+
+header, main {
+    display: block;
+    max-width: 900px;
+    padding: 1em;
+    margin: 0 auto;
+}

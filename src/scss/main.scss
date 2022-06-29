@@ -1,10 +1,11 @@
-$searchBoxInputBg: darken(white, 10%);
-$searchBoxInputFocusedBg: lighten(white, 15%);
-$searchBoxPlaceholderColor: grey;
+$searchBoxInputBg: #8afbe4;
+$searchBoxInputFocusedBg: #abffee;
+$searchBoxPlaceholderColor: #5bb8a5;
 $searchBoxBaseFontSize: 1em;
 $searchBoxListBgColor: #ffffdd;
 $searchBoxListMessageColor: #685837;
 $searchBoxColor: #6f918a;
+$searchBoxInputColor: #3c645c;
 $searchBoxButtonHoverColor: darken($searchBoxListBgColor, 5%);
 $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
 
@@ -28,7 +29,7 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
     padding: 0.5em 0.75em;
     line-height: 1;
     height: 2em;
-    color: white;
+    color: $searchBoxInputColor;
     width: 12em;
     padding-right: 2em;
     font-size: inherit;
@@ -38,13 +39,12 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
     &:focus {
         border: none;
         outline: none;
-        box-shadow: 0px 0px 0px 2px lighten(white, 15%);
+        background-color: $searchBoxInputFocusedBg;
     }
 
     &::placeholder {
         color: $searchBoxPlaceholderColor;
-        font-weight: 600;
-        text-transform: uppercase;
+        font-weight: 400;
         opacity: 1;
     }
 }
