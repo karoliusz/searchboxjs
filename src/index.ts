@@ -1,4 +1,4 @@
 import './scss/main.scss';
-import { SearchBox } from './ts/SearchBox';
 
-export default SearchBox;
+export { SearchBox } from './ts/SearchBox';
+export { SearchBoxJSONDataSource } from './ts/dataLayer';

@@ -7,6 +7,9 @@ export const DEFAULT_CLASS_NAMES = {
         itemButtonDefaultClassName: "searchBoxList__itemButton",
         messageClassName: "searchBoxList__message",
         loadingIndicatorClassName: "searchBoxList__loadingIndicator"
+    },
+    searchBoxInput: {
+        defaultClassName: "searchBox__input"
     }
 } as const;
 
