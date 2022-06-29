@@ -11,10 +11,7 @@ const configs = [
   defineConfig({
     input: 'src/index.ts',
     external: ['rxjs', 'rxjs/operators', './scss/main.scss'],
-    plugins: [
-      scss(),
-      esbuild(),
-    ],
+    plugins: [esbuild()],
     output: [
       {
         file: `dist/${scriptFileName}.js`,
@@ -26,11 +23,12 @@ const configs = [
   defineConfig({
     input: 'src/index.ts',
     plugins: [
+      scss(),
       nodeResolve(),
       esbuild({
         minify: true,
         target: 'es2017'
-      }),
+      })
     ],
     output: [
       {
@@ -38,13 +36,26 @@ const configs = [
         format: 'iife',
         sourcemap: true,
         name: iifeName
-      },
+      }
+    ],
+  }),
+  defineConfig({
+    input: 'src/index.ts',
+    plugins: [
+      scss(),
+      nodeResolve(),
+      esbuild({
+        minify: true,
+        target: 'es2017'
+      })
+    ],
+    output: [
       {
         file: `demo/${scriptFileName}.min.js`,
         format: 'iife',
         sourcemap: true,
         name: iifeName
-      },
+      }
     ],
   }),
   defineConfig({

@@ -1,0 +1,121 @@
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.searchBox {
+  position: relative;
+}
+
+.searchBox__input {
+  border: none;
+  border-radius: 1em;
+  background-color: #e6e6e6;
+  padding: 0.5em 0.75em;
+  line-height: 1;
+  height: 2em;
+  color: white;
+  width: 12em;
+  padding-right: 2em;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: 400;
+}
+.searchBox__input:focus {
+  border: none;
+  outline: none;
+  box-shadow: 0px 0px 0px 2px white;
+}
+.searchBox__input::placeholder {
+  color: grey;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.searchBoxList {
+  position: relative;
+  list-style-type: none;
+  background-color: #ffffdd;
+  padding: 0.75em 0;
+  border-radius: 0.75em;
+  box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.25);
+  font-family: "Jost", "sans-serif";
+  font-size: 1em;
+  font-weight: 400;
+  margin: 1em 0 0.5em 0;
+}
+.searchBoxList:before {
+  position: absolute;
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0.5em 1em 1em;
+  border-color: transparent transparent #ffffdd transparent;
+  top: -0.9em;
+  right: 1em;
+}
+
+.searchBoxList__message {
+  padding: 0.5em 1em;
+  font-style: italic;
+  color: #685837;
+}
+
+.searchBoxList__loadingIndicator {
+  position: relative;
+  overflow: hidden;
+  width: 2.75em;
+  height: 2.75em;
+  margin-right: 0.75em;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: middle;
+  animation: spin 1.25s linear infinite;
+}
+.searchBoxList__loadingIndicator:before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background-color: #6f918a;
+}
+.searchBoxList__loadingIndicator:after {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  background-color: #6f918a;
+}
+
+.searchBoxList__item {
+  display: block;
+}
+.searchBoxList__item button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0.5em 1em;
+  color: #6f918a;
+}
+.searchBoxList__item button:hover {
+  background-color: #ffffc4;
+  background-size: 200%;
+  transition: none;
+}
+.searchBoxList__item button:active {
+  background-color: #ffffaa;
+}

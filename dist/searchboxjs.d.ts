@@ -24,6 +24,9 @@ declare class SearchBox<T> {
     private itemTemplate;
     private searchKeys;
     private options;
+    private resultList;
+    private isInitializing;
+    private isInitialized;
     private state;
     private stateSubscription;
     constructor(inputElement: HTMLElement, dataSource: SearchBoxDataSource<T>, itemTemplate: string, searchKeys: Array<keyof T>, options?: SearchBoxOptions<T>);
