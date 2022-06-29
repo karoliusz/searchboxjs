@@ -159,14 +159,14 @@ export class SearchBoxResultList<T> {
         const listItemElement = document.createElement('li');
         const buttonElement = document.createElement('button');
         const htmlContent = this.getItemHTML(item, this.itemTemplate);
-        const { searchBoxList: { itemButtonDefaultClassName, defaultClassName } } = DEFAULT_CLASS_NAMES;
+        const { searchBoxList: { itemButtonDefaultClassName, itemDefaultClassName } } = DEFAULT_CLASS_NAMES;
 
         buttonElement.setAttribute('data-index', String(index));
         buttonElement.setAttribute('type', 'button');
         buttonElement.innerHTML = htmlContent;
         buttonElement.classList.add(itemButtonDefaultClassName);
         listItemElement.appendChild(buttonElement);
-        listItemElement.classList.add(defaultClassName);
+        listItemElement.classList.add(itemDefaultClassName);
 
         return listItemElement;
     }
