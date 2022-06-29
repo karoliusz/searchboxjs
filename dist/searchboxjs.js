@@ -1,6 +1,24 @@
 import './scss/main.scss';
 import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 
+const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
+const DEFAULT_CLASS_NAMES = {
+  searchBoxList: {
+    defaultClassName: "searchBoxList",
+    itemDefaultClassName: "searchBoxList__item",
+    itemButtonDefaultClassName: "searchBoxList__itemButton",
+    messageClassName: "searchBoxList__message",
+    loadingIndicatorClassName: "searchBoxList__loadingIndicator"
+  },
+  searchBoxInput: {
+    defaultClassName: "searchBox__input"
+  }
+};
+const TEXT = {
+  noResultsFound: "Sorry, can't find a match for your search phrase!",
+  loading: "Loading your results\u2026"
+};
+
 class BrowserEventManager {
   constructor(element) {
     this.element = element;
@@ -72,20 +90,31 @@ function getPathBetweenElements(ancestor, descendant) {
   return path;
 }
 
-const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
-const DEFAULT_CLASS_NAMES = {
-  searchBoxList: {
-    defaultClassName: "searchBoxList",
-    itemDefaultClassName: "searchBoxList__item",
-    itemButtonDefaultClassName: "searchBoxList__itemButton",
-    messageClassName: "searchBoxList__message",
-    loadingIndicatorClassName: "searchBoxList__loadingIndicator"
+class SearchBoxInput {
+  constructor(inputElement, options = {}) {
+    this.inputElement = inputElement;
+    this.options = options;
+    this.browserEventManager = new BrowserEventManager(this.inputElement);
+    this.browserEventManager.addListener("focus", () => {
+      this.options.onFocus && this.options.onFocus();
+    });
+    this.browserEventManager.addListener("blur", () => {
+      this.options.onBlur && this.options.onBlur();
+    });
+    this.browserEventManager.addListener("input", (event) => {
+      const target = event.target;
+      this.options.onValueChange && this.options.onValueChange(target.value);
+    });
   }
-};
-const TEXT = {
-  noResultsFound: "Sorry, can't find a match for your search phrase!",
-  loading: "Loading your results\u2026"
-};
+  browserEventManager = null;
+  setFocus() {
+    this.inputElement.focus();
+  }
+  dispose() {
+    this.inputElement = null;
+    this.browserEventManager.dispose();
+  }
+}
 
 class SearchBoxResultList {
   constructor(inputElement, itemTemplate, options = {}) {
@@ -205,13 +234,13 @@ class SearchBoxResultList {
     const listItemElement = document.createElement("li");
     const buttonElement = document.createElement("button");
     const htmlContent = this.getItemHTML(item, this.itemTemplate);
-    const { searchBoxList: { itemButtonDefaultClassName, defaultClassName } } = DEFAULT_CLASS_NAMES;
+    const { searchBoxList: { itemButtonDefaultClassName, itemDefaultClassName } } = DEFAULT_CLASS_NAMES;
     buttonElement.setAttribute("data-index", String(index));
     buttonElement.setAttribute("type", "button");
     buttonElement.innerHTML = htmlContent;
     buttonElement.classList.add(itemButtonDefaultClassName);
     listItemElement.appendChild(buttonElement);
-    listItemElement.classList.add(defaultClassName);
+    listItemElement.classList.add(itemDefaultClassName);
     return listItemElement;
   }
   getItemHTML(item, itemTemplate) {
@@ -234,11 +263,17 @@ class SearchBox {
     if (!(inputElement instanceof HTMLInputElement)) {
       throw new Error("Input element must be a valid HTMLInputElement!");
     }
+    inputElement.classList.add(DEFAULT_CLASS_NAMES.searchBoxInput.defaultClassName);
     this.state = new State({
       inputFocused: false,
       resultListFocused: false,
       inputValue: "",
       selectedItem: null
+    });
+    this.input = new SearchBoxInput(inputElement, {
+      onFocus: () => this.state.setState({ inputFocused: true, resultListFocused: false }),
+      onBlur: () => this.state.setState({ inputFocused: false }),
+      onValueChange: (value) => this.state.setState({ inputValue: value })
     });
     this.resultList = new SearchBoxResultList(inputElement, itemTemplate, {
       onFocus: () => this.state.setState({ resultListFocused: true }),
@@ -247,12 +282,14 @@ class SearchBox {
     });
     this.stateSubscription = this.state.state$.subscribe((event) => this.onStateChange(event));
   }
+  input = null;
   resultList = null;
   isInitializing = false;
   isInitialized = false;
   state = null;
   stateSubscription;
   dispose() {
+    this.input.dispose();
     this.resultList.dispose();
     this.inputElement = null;
     this.stateSubscription.unsubscribe();
@@ -270,8 +307,53 @@ class SearchBox {
     if (event.selectedItem && this.options.onItemSelect) {
       this.options.onItemSelect(event.selectedItem);
     }
+    if (event.inputFocused) {
+      if (!this.isInitializing && !this.isInitialized) {
+        this.initialize();
+      }
+      this.resultList.show();
+    } else if (!event.resultListFocused) {
+      this.resultList.hide();
+    }
   }
 }
 
-export { SearchBox as default };
+class SearchBoxJSONDataSource {
+  constructor(url) {
+    this.url = url;
+  }
+  items = null;
+  getItems(searchPhrase, take, searchKeys) {
+    if (!this.items) {
+      this.items = this.waitForIt(1e3).then(() => this.fetchJSON(this.url));
+    }
+    return this.items.then((items) => this.filterItems(items, searchPhrase, searchKeys));
+  }
+  async fetchJSON(url) {
+    return fetch(url).then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(`Request to fetch JSON data for the SearchBox has failed with status code ${response.status}`);
+      }
+    });
+  }
+  filterItems(items, searchPhrase, searchKeys) {
+    if (searchPhrase.length < 2) {
+      return items;
+    }
+    searchPhrase = searchPhrase.toLowerCase();
+    return items.filter((item) => searchKeys.some((key) => {
+      const fieldValue = item[key];
+      return fieldValue && String(fieldValue).toLowerCase().includes(searchPhrase);
+    }));
+  }
+  waitForIt(timeMs) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(), timeMs);
+    });
+  }
+}
+
+export { SearchBox, SearchBoxJSONDataSource };
 //# sourceMappingURL=searchboxjs.js.map

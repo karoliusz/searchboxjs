@@ -24,6 +24,7 @@ declare class SearchBox<T> {
     private itemTemplate;
     private searchKeys;
     private options;
+    private input;
     private resultList;
     private isInitializing;
     private isInitialized;
@@ -35,4 +36,15 @@ declare class SearchBox<T> {
     private onStateChange;
 }
 
-export { SearchBox as default };
+declare class SearchBoxJSONDataSource<T> implements SearchBoxDataSource<T> {
+    private url;
+    private items;
+    constructor(url: string);
+    getItems(searchPhrase: string, take: number, searchKeys: Array<keyof T>): Promise<T[]>;
+    private fetchJSON;
+    private filterItems;
+    /** TODO: Remove later - this is only for testing purposes */
+    private waitForIt;
+}
+
+export { SearchBox, SearchBoxJSONDataSource };
