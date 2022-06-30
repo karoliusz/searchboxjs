@@ -1,4 +1,4 @@
-import { Subscription } from "rxjs";
+import { debounceTime, distinctUntilChanged, filter, first, map, merge, Subscription } from "rxjs";
 import { DEFAULT_CLASS_NAMES } from "./constants";
 
 import { SearchBoxDataSource } from "./dataLayer/interfaces";
@@ -27,6 +27,7 @@ export class SearchBox<T> {
 
     private state: State<SearchBoxState<T>> = null;
     private stateSubscription: Subscription;
+    private inputSubscription: Subscription;
 
     constructor(
         private inputElement: HTMLElement,
@@ -34,6 +35,7 @@ export class SearchBox<T> {
         private itemTemplate: string,
         private searchKeys: Array<keyof T>,
         private options: SearchBoxOptions<T> = {}) {
+        const minSearchValueLength = 3;
 
         if (!(inputElement instanceof HTMLInputElement)) {
             throw new Error('Input element must be a valid HTMLInputElement!');
@@ -61,6 +63,22 @@ export class SearchBox<T> {
         });
 
         this.stateSubscription = this.state.state$.subscribe(event => this.onStateChange(event));
+        
+        const firstFocus$ = this.state.state$.pipe(
+            first(state => state?.inputFocused),
+            map(() => '')
+        );
+
+        const inputChanges$ = this.state.state$.pipe(
+            filter((state) => state?.inputValue && state?.inputValue.length >= minSearchValueLength),
+            map(state => state.inputValue),
+            debounceTime(500)
+        );
+
+        this.inputSubscription = merge(firstFocus$, inputChanges$)
+            .subscribe((inputValue) => {
+                console.log('input says', inputValue);
+            });
     }
 
     dispose() {
@@ -68,6 +86,7 @@ export class SearchBox<T> {
         this.resultList.dispose();
         this.inputElement = null;
         this.stateSubscription.unsubscribe();
+        this.inputSubscription.unsubscribe();
     }
 
     private initialize() {
