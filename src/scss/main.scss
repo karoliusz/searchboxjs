@@ -2,12 +2,14 @@ $searchBoxInputBg: #8afbe4;
 $searchBoxInputFocusedBg: #abffee;
 $searchBoxPlaceholderColor: #5bb8a5;
 $searchBoxBaseFontSize: 1em;
-$searchBoxListBgColor: #ffffdd;
-$searchBoxListMessageColor: #685837;
-$searchBoxColor: #6f918a;
+$searchBoxListBgColor: #303030;
+$searchBoxListColor: $searchBoxPlaceholderColor;
+$searchBoxListMessageColor: $searchBoxListColor;
 $searchBoxInputColor: #3c645c;
-$searchBoxButtonHoverColor: darken($searchBoxListBgColor, 5%);
-$searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
+$searchBoxButtonHoverColor: $searchBoxInputFocusedBg;
+$searchBoxButtonActiveColor: $searchBoxInputFocusedBg;
+$searchBoxButtonHoverBgColor: darken($searchBoxListBgColor, 5%);
+$searchBoxButtonActiveBgColor: darken($searchBoxListBgColor, 10%);
 
 @keyframes spin {
     0% {
@@ -56,7 +58,7 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
     padding: 0.75em 0;
     border-radius: 0.75em;
     box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.25);
-    font-family: 'Jost', 'sans-serif';
+    font-family: sans-serif;
     font-size: $searchBoxBaseFontSize;
     font-weight: 400;
     margin: 1em 0 0.5em 0;
@@ -79,13 +81,14 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
     padding: 0.5em 1em;
     font-style: italic;
     color: $searchBoxListMessageColor;
+    font-family: inherit;
 }
 
 .searchBoxList__loadingIndicator {
     position: relative;
     overflow: hidden;
-    width: 2.75em;
-    height: 2.75em;
+    width: 2em;
+    height: 2em;
     margin-right: 0.75em;
     border-radius: 50%;
     display: inline-block;
@@ -100,7 +103,7 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
         left: 0;
         width: 50%;
         height: 50%;
-        background-color: $searchBoxColor;
+        background-color: $searchBoxListMessageColor;
     }
 
     &:after {
@@ -111,12 +114,13 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
         right: 0;
         width: 50%;
         height: 50%;
-        background-color: $searchBoxColor;
+        background-color: $searchBoxListMessageColor;
     }
 }
 
 .searchBoxList__item {
     display: block;
+    font-size: 1em;
 
     button {
         display: block;
@@ -125,17 +129,20 @@ $searchBoxButtonActiveColor: darken($searchBoxListBgColor, 10%);
         background: transparent;
         border: none;
         padding: 0.5em 1em;
-        color: $searchBoxColor;
+        color: $searchBoxListColor;
+        font-size: inherit;
     }
 
     button:hover {
-        background-color: $searchBoxButtonHoverColor;
+        color: $searchBoxButtonHoverColor;
+        background-color: $searchBoxButtonHoverBgColor;
         background-size: 200%;
         transition: none;
     }
 
     button:active {
-        background-color: $searchBoxButtonActiveColor;
+        color: $searchBoxButtonActiveColor;
+        background-color: $searchBoxButtonActiveBgColor;
     }
 }
 

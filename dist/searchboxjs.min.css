@@ -38,11 +38,11 @@
 .searchBoxList {
   position: relative;
   list-style-type: none;
-  background-color: #ffffdd;
+  background-color: #303030;
   padding: 0.75em 0;
   border-radius: 0.75em;
   box-shadow: 0 0.15em 0.5em rgba(0, 0, 0, 0.25);
-  font-family: "Jost", "sans-serif";
+  font-family: sans-serif;
   font-size: 1em;
   font-weight: 400;
   margin: 1em 0 0.5em 0;
@@ -55,7 +55,7 @@
   height: 0;
   border-style: solid;
   border-width: 0 0.5em 1em 1em;
-  border-color: transparent transparent #ffffdd transparent;
+  border-color: transparent transparent #303030 transparent;
   top: -0.9em;
   right: 1em;
 }
@@ -63,14 +63,15 @@
 .searchBoxList__message {
   padding: 0.5em 1em;
   font-style: italic;
-  color: #685837;
+  color: #5bb8a5;
+  font-family: inherit;
 }
 
 .searchBoxList__loadingIndicator {
   position: relative;
   overflow: hidden;
-  width: 2.75em;
-  height: 2.75em;
+  width: 2em;
+  height: 2em;
   margin-right: 0.75em;
   border-radius: 50%;
   display: inline-block;
@@ -85,7 +86,7 @@
   left: 0;
   width: 50%;
   height: 50%;
-  background-color: #6f918a;
+  background-color: #5bb8a5;
 }
 .searchBoxList__loadingIndicator:after {
   content: "";
@@ -95,11 +96,12 @@
   right: 0;
   width: 50%;
   height: 50%;
-  background-color: #6f918a;
+  background-color: #5bb8a5;
 }
 
 .searchBoxList__item {
   display: block;
+  font-size: 1em;
 }
 .searchBoxList__item button {
   display: block;
@@ -108,13 +110,16 @@
   background: transparent;
   border: none;
   padding: 0.5em 1em;
-  color: #6f918a;
+  color: #5bb8a5;
+  font-size: inherit;
 }
 .searchBoxList__item button:hover {
-  background-color: #ffffc4;
+  color: #abffee;
+  background-color: #232323;
   background-size: 200%;
   transition: none;
 }
 .searchBoxList__item button:active {
-  background-color: #ffffaa;
+  color: #abffee;
+  background-color: #171717;
 }

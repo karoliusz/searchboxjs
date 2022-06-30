@@ -325,7 +325,7 @@ class SearchBoxJSONDataSource {
   items = null;
   getItems(searchPhrase, take, searchKeys) {
     if (!this.items) {
-      this.items = this.waitForIt(1e3).then(() => this.fetchJSON(this.url));
+      this.items = this.waitForIt(3e3).then(() => this.fetchJSON(this.url));
     }
     return this.items.then((items) => this.filterItems(items, searchPhrase, searchKeys));
   }
