@@ -1,4 +1,4 @@
-import { debounceTime, distinctUntilChanged, filter, first, map, merge, Subscription } from "rxjs";
+import { debounceTime, distinctUntilChanged, filter, first, map, merge, Subscription, switchMap } from "rxjs";
 import { DEFAULT_CLASS_NAMES } from "./constants";
 
 import { SearchBoxDataSource } from "./dataLayer/interfaces";
@@ -11,7 +11,7 @@ interface SearchBoxState<T = unknown> {
     inputFocused: boolean;
     resultListFocused: boolean;
     inputValue: string;
-    selectedItem: T
+    selectedItem: T;
 }
 
 /**
@@ -27,7 +27,8 @@ export class SearchBox<T> {
 
     private state: State<SearchBoxState<T>> = null;
     private stateSubscription: Subscription;
-    private inputSubscription: Subscription;
+    private inputValueSubscription: Subscription;
+    private inputItemsSubscription: Subscription;
 
     constructor(
         private inputElement: HTMLElement,
@@ -69,16 +70,28 @@ export class SearchBox<T> {
             map(() => '')
         );
 
-        const inputChanges$ = this.state.state$.pipe(
-            filter((state) => state?.inputValue && state?.inputValue.length >= minSearchValueLength),
-            map(state => state.inputValue),
+        const inputValue$ = this.state.state$.pipe(
+            filter((state) => !(state?.inputValue) || state?.inputValue.length >= minSearchValueLength),
+            map(state => state.inputValue || ''),
             debounceTime(500)
         );
 
-        this.inputSubscription = merge(firstFocus$, inputChanges$)
+        const inputItems$ = merge(firstFocus$, inputValue$).pipe(
+            switchMap(value => this.dataSource.getItems(value, 10, this.searchKeys))
+        );
+
+        this.inputValueSubscription = merge(firstFocus$, inputValue$)
             .subscribe((inputValue) => {
                 console.log('input says', inputValue);
+
+                // TODO: Use this stream to show the loading indicator
             });
+        
+        this.inputItemsSubscription = inputItems$.subscribe(
+            items => {
+                this.resultList.setItems(items);
+            }
+        );
     }
 
     dispose() {
@@ -86,18 +99,7 @@ export class SearchBox<T> {
         this.resultList.dispose();
         this.inputElement = null;
         this.stateSubscription.unsubscribe();
-        this.inputSubscription.unsubscribe();
-    }
-
-    private initialize() {
-        this.isInitializing = true;
-
-        this.dataSource.getItems('', 10, this.searchKeys)
-            .then(data => {
-                this.resultList.setItems(data);
-                this.isInitialized = true;
-                this.isInitializing = false;
-            });
+        this.inputValueSubscription.unsubscribe();
     }
 
     private onStateChange(event: SearchBoxState<T>) {
@@ -108,10 +110,6 @@ export class SearchBox<T> {
         }
 
         if (event.inputFocused) {
-            if (!this.isInitializing && !this.isInitialized) {
-                this.initialize();
-            }
-
             this.resultList.show();
         } else if (!event.resultListFocused) {
             this.resultList.hide();
