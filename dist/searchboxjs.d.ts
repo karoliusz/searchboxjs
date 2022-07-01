@@ -30,9 +30,10 @@ declare class SearchBox<T> {
     private isInitialized;
     private state;
     private stateSubscription;
+    private inputValueSubscription;
+    private inputItemsSubscription;
     constructor(inputElement: HTMLElement, dataSource: SearchBoxDataSource<T>, itemTemplate: string, searchKeys: Array<keyof T>, options?: SearchBoxOptions<T>);
     dispose(): void;
-    private initialize;
     private onStateChange;
 }
 

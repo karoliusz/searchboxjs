@@ -1,5 +1,5 @@
 import './scss/main.scss';
-import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime, merge, switchMap } from 'rxjs';
 
 const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 const DEFAULT_CLASS_NAMES = {
@@ -260,6 +260,7 @@ class SearchBox {
     this.itemTemplate = itemTemplate;
     this.searchKeys = searchKeys;
     this.options = options;
+    const minSearchValueLength = 3;
     if (!(inputElement instanceof HTMLInputElement)) {
       throw new Error("Input element must be a valid HTMLInputElement!");
     }
@@ -281,6 +282,15 @@ class SearchBox {
       onItemSelect: (item) => this.state.setState({ selectedItem: item })
     });
     this.stateSubscription = this.state.state$.subscribe((event) => this.onStateChange(event));
+    const firstFocus$ = this.state.state$.pipe(first((state) => state?.inputFocused), map(() => ""));
+    const inputValue$ = this.state.state$.pipe(filter((state) => !state?.inputValue || state?.inputValue.length >= minSearchValueLength), map((state) => state.inputValue || ""), debounceTime(500));
+    const inputItems$ = merge(firstFocus$, inputValue$).pipe(switchMap((value) => this.dataSource.getItems(value, 10, this.searchKeys)));
+    this.inputValueSubscription = merge(firstFocus$, inputValue$).subscribe((inputValue) => {
+      console.log("input says", inputValue);
+    });
+    this.inputItemsSubscription = inputItems$.subscribe((items) => {
+      this.resultList.setItems(items);
+    });
   }
   input = null;
   resultList = null;
@@ -288,19 +298,14 @@ class SearchBox {
   isInitialized = false;
   state = null;
   stateSubscription;
+  inputValueSubscription;
+  inputItemsSubscription;
   dispose() {
     this.input.dispose();
     this.resultList.dispose();
     this.inputElement = null;
     this.stateSubscription.unsubscribe();
-  }
-  initialize() {
-    this.isInitializing = true;
-    this.dataSource.getItems("", 10, this.searchKeys).then((data) => {
-      this.resultList.setItems(data);
-      this.isInitialized = true;
-      this.isInitializing = false;
-    });
+    this.inputValueSubscription.unsubscribe();
   }
   onStateChange(event) {
     console.log("state changed", event);
@@ -308,9 +313,6 @@ class SearchBox {
       this.options.onItemSelect(event.selectedItem);
     }
     if (event.inputFocused) {
-      if (!this.isInitializing && !this.isInitialized) {
-        this.initialize();
-      }
       this.resultList.show();
     } else if (!event.resultListFocused) {
       this.resultList.hide();
@@ -325,7 +327,7 @@ class SearchBoxJSONDataSource {
   items = null;
   getItems(searchPhrase, take, searchKeys) {
     if (!this.items) {
-      this.items = this.waitForIt(3e3).then(() => this.fetchJSON(this.url));
+      this.items = this.waitForIt(1e3).then(() => this.fetchJSON(this.url));
     }
     return this.items.then((items) => this.filterItems(items, searchPhrase, searchKeys));
   }
