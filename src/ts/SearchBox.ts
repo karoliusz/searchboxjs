@@ -76,6 +76,8 @@ export class SearchBox<T> {
             debounceTime(500)
         );
 
+
+        // TODO: Do not start before first focus!
         const inputItems$ = merge(firstFocus$, inputValue$).pipe(
             switchMap(value => this.dataSource.getItems(value, 10, this.searchKeys))
         );

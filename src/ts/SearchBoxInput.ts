@@ -1,3 +1,4 @@
+import { DEFAULT_CLASS_NAMES } from "./constants";
 import { BrowserEventManager } from "./utils";
 
 interface SearchBoxInputOptions {
@@ -8,6 +9,7 @@ interface SearchBoxInputOptions {
 
 export class SearchBoxInput {
     private browserEventManager: BrowserEventManager = null;
+    private wrapperElement: HTMLDivElement = null;
 
     constructor(
         private inputElement: HTMLInputElement,
@@ -28,6 +30,12 @@ export class SearchBoxInput {
 
             this.options.onValueChange && this.options.onValueChange(target.value);
         });
+
+        this.wrapperElement = document.createElement('div');
+        this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
+
+        inputElement.insertAdjacentElement('beforebegin', this.wrapperElement);
+        this.wrapperElement.appendChild(inputElement);
     }
 
     public setFocus() {
@@ -35,6 +43,7 @@ export class SearchBoxInput {
     }
 
     public dispose() {
+        // TODO: Place the input node before the wrapper element, and then remove the wrapper element
         this.inputElement = null;
         this.browserEventManager.dispose();
     }
