@@ -1,5 +1,5 @@
 import './scss/main.scss';
-import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime, merge, switchMap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime, merge, skipUntil, switchMap } from 'rxjs';
 
 const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 const DEFAULT_CLASS_NAMES = {
@@ -11,13 +11,44 @@ const DEFAULT_CLASS_NAMES = {
     loadingIndicatorClassName: "searchBoxList__loadingIndicator"
   },
   searchBoxInput: {
-    defaultClassName: "searchBox__input"
+    defaultClassName: "searchBox__input",
+    wrapperClassName: "searchBox__wrapper"
+  },
+  searchBoxInputLoadingIndicator: {
+    defaultClassName: "searchBoxInput__loadingIndicator",
+    visibleClassName: "searchBoxInput__loadingIndicator--visible",
+    hiddenClassName: "searchBoxInput__loadingIndicator--hidden"
   }
 };
 const TEXT = {
   noResultsFound: "Sorry, can't find a match for your search phrase!",
   loading: "Loading your results\u2026"
 };
+
+class SearchBoxLoadingIndicator {
+  constructor(wrapperElement) {
+    this.wrapperElement = wrapperElement;
+    this.spinnerElement = document.createElement("div");
+    this.spinnerElement.className = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator.defaultClassName;
+    this.wrapperElement.append(this.spinnerElement);
+    this.hide();
+  }
+  spinnerElement = null;
+  show() {
+    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
+    this.spinnerElement.classList.remove(hiddenClassName);
+    this.spinnerElement.classList.add(visibleClassName);
+  }
+  hide() {
+    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
+    this.spinnerElement.classList.remove(visibleClassName);
+    this.spinnerElement.classList.add(hiddenClassName);
+  }
+  dispose() {
+    this.spinnerElement.remove();
+    this.spinnerElement = null;
+  }
+}
 
 class BrowserEventManager {
   constructor(element) {
@@ -105,14 +136,38 @@ class SearchBoxInput {
       const target = event.target;
       this.options.onValueChange && this.options.onValueChange(target.value);
     });
+    this.addWrapperElement();
+    this.loadingIndicator = new SearchBoxLoadingIndicator(this.wrapperElement);
   }
   browserEventManager = null;
+  wrapperElement = null;
+  loadingIndicator = null;
   setFocus() {
     this.inputElement.focus();
   }
+  showLoadingIndicator() {
+    this.loadingIndicator.show();
+  }
+  hideLoadingIndicator() {
+    this.loadingIndicator.hide();
+  }
   dispose() {
+    this.loadingIndicator.dispose();
+    this.removeWrapperElement();
     this.inputElement = null;
     this.browserEventManager.dispose();
+  }
+  addWrapperElement() {
+    const inputElement = this.inputElement;
+    this.wrapperElement = document.createElement("div");
+    this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
+    inputElement.insertAdjacentElement("beforebegin", this.wrapperElement);
+    this.wrapperElement.appendChild(inputElement);
+  }
+  removeWrapperElement() {
+    this.wrapperElement.insertAdjacentElement("beforebegin", this.inputElement);
+    this.wrapperElement.remove();
+    this.wrapperElement = null;
   }
 }
 
@@ -284,12 +339,11 @@ class SearchBox {
     this.stateSubscription = this.state.state$.subscribe((event) => this.onStateChange(event));
     const firstFocus$ = this.state.state$.pipe(first((state) => state?.inputFocused), map(() => ""));
     const inputValue$ = this.state.state$.pipe(filter((state) => !state?.inputValue || state?.inputValue.length >= minSearchValueLength), map((state) => state.inputValue || ""), debounceTime(500));
-    const inputItems$ = merge(firstFocus$, inputValue$).pipe(switchMap((value) => this.dataSource.getItems(value, 10, this.searchKeys)));
-    this.inputValueSubscription = merge(firstFocus$, inputValue$).subscribe((inputValue) => {
-      console.log("input says", inputValue);
-    });
+    const inputItems$ = merge(firstFocus$, inputValue$).pipe(skipUntil(firstFocus$), switchMap((value) => this.dataSource.getItems(value, 10, this.searchKeys)));
+    this.inputValueSubscription = merge(firstFocus$, inputValue$).pipe(skipUntil(firstFocus$)).subscribe(() => this.input.showLoadingIndicator());
     this.inputItemsSubscription = inputItems$.subscribe((items) => {
       this.resultList.setItems(items);
+      this.input.hideLoadingIndicator();
     });
   }
   input = null;
@@ -329,7 +383,9 @@ class SearchBoxJSONDataSource {
     if (!this.items) {
       this.items = this.waitForIt(1e3).then(() => this.fetchJSON(this.url));
     }
-    return this.items.then((items) => this.filterItems(items, searchPhrase, searchKeys));
+    return this.waitForIt(1e3).then(() => {
+      return this.items.then((items) => this.filterItems(items, searchPhrase, searchKeys));
+    });
   }
   async fetchJSON(url) {
     return fetch(url).then((response) => {

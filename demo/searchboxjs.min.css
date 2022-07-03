@@ -6,20 +6,16 @@
     transform: rotate(360deg);
   }
 }
-.searchBox {
-  position: relative;
-}
-
 .searchBox__input {
   border: none;
   border-radius: 1em;
   background-color: #8afbe4;
   padding: 0.5em 0.75em;
   line-height: 1;
-  height: 2em;
+  height: 3em;
   color: #3c645c;
-  width: 12em;
-  padding-right: 2em;
+  width: 18em;
+  padding-right: 3em;
   font-size: inherit;
   font-family: inherit;
   font-weight: 400;
@@ -46,6 +42,7 @@
   font-size: 1em;
   font-weight: 400;
   margin: 1em 0 0.5em 0;
+  min-width: 18em;
 }
 .searchBoxList:before {
   position: absolute;
@@ -122,4 +119,51 @@
 .searchBoxList__item button:active {
   color: #abffee;
   background-color: #171717;
+}
+
+.searchBox__wrapper, .searchBox__wrapper *, .searchBoxList, .searchBoxList * {
+  box-sizing: border-box;
+}
+
+.searchBox__wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.searchBoxInput__loadingIndicator {
+  position: absolute;
+  overflow: hidden;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  right: 0.75em;
+  top: 50%;
+  margin-top: -0.75em;
+  animation: spin 1.25s linear infinite;
+}
+.searchBoxInput__loadingIndicator:before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background-color: #5bb8a5;
+}
+.searchBoxInput__loadingIndicator:after {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  background-color: #5bb8a5;
+}
+.searchBoxInput__loadingIndicator.searchBoxInput__loadingIndicator--hidden {
+  opacity: 0%;
+}
+.searchBoxInput__loadingIndicator.searchBoxInput__loadingIndicator--visible {
+  opacity: 100%;
 }
