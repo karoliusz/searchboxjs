@@ -1,4 +1,5 @@
 import { DEFAULT_CLASS_NAMES } from "./constants";
+import { SearchBoxLoadingIndicator } from "./SearchBoxLoadingIndicator";
 import { BrowserEventManager } from "./utils";
 
 interface SearchBoxInputOptions {
@@ -10,6 +11,7 @@ interface SearchBoxInputOptions {
 export class SearchBoxInput {
     private browserEventManager: BrowserEventManager = null;
     private wrapperElement: HTMLDivElement = null;
+    private loadingIndicator: SearchBoxLoadingIndicator = null;
 
     constructor(
         private inputElement: HTMLInputElement,
@@ -32,13 +34,23 @@ export class SearchBoxInput {
         });
 
         this.addWrapperElement();
+        this.loadingIndicator = new SearchBoxLoadingIndicator(this.wrapperElement);
     }
 
     public setFocus() {
         this.inputElement.focus();
     }
 
+    public showLoadingIndicator() {
+        this.loadingIndicator.show();
+    }
+
+    public hideLoadingIndicator() {
+        this.loadingIndicator.hide();
+    }
+
     public dispose() {
+        this.loadingIndicator.dispose();
         this.removeWrapperElement();
         this.inputElement = null;
         this.browserEventManager.dispose();

@@ -1,4 +1,4 @@
-import { debounceTime, distinctUntilChanged, filter, first, map, merge, Subscription, switchMap } from "rxjs";
+import { debounceTime, distinctUntilChanged, filter, first, map, merge, skipUntil, Subscription, switchMap } from "rxjs";
 import { DEFAULT_CLASS_NAMES } from "./constants";
 
 import { SearchBoxDataSource } from "./dataLayer/interfaces";
@@ -76,24 +76,19 @@ export class SearchBox<T> {
             debounceTime(500)
         );
 
-
-        // TODO: Do not start before first focus!
         const inputItems$ = merge(firstFocus$, inputValue$).pipe(
+            skipUntil(firstFocus$),
             switchMap(value => this.dataSource.getItems(value, 10, this.searchKeys))
         );
 
         this.inputValueSubscription = merge(firstFocus$, inputValue$)
-            .subscribe((inputValue) => {
-                console.log('input says', inputValue);
-
-                // TODO: Use this stream to show the loading indicator
-            });
+            .pipe(skipUntil(firstFocus$))
+            .subscribe(() => this.input.showLoadingIndicator());
         
-        this.inputItemsSubscription = inputItems$.subscribe(
-            items => {
-                this.resultList.setItems(items);
-            }
-        );
+        this.inputItemsSubscription = inputItems$.subscribe(items => {
+            this.resultList.setItems(items);
+            this.input.hideLoadingIndicator();
+        });
     }
 
     dispose() {

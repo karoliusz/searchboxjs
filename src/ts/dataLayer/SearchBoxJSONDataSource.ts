@@ -12,7 +12,11 @@ export class SearchBoxJSONDataSource<T> implements SearchBoxDataSource<T> {
             this.items = this.waitForIt(1000).then(() => this.fetchJSON(this.url));
         }
 
-        return this.items.then(items => this.filterItems(items, searchPhrase, searchKeys));
+        // this.items.then(items => this.filterItems(items, searchPhrase, searchKeys));
+
+        return this.waitForIt(1000).then(() => {
+            return this.items.then(items => this.filterItems(items, searchPhrase, searchKeys));
+        });
     }
 
     private async fetchJSON(url: string): Promise<T[]> {
