@@ -31,11 +31,7 @@ export class SearchBoxInput {
             this.options.onValueChange && this.options.onValueChange(target.value);
         });
 
-        this.wrapperElement = document.createElement('div');
-        this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
-
-        inputElement.insertAdjacentElement('beforebegin', this.wrapperElement);
-        this.wrapperElement.appendChild(inputElement);
+        this.addWrapperElement();
     }
 
     public setFocus() {
@@ -43,8 +39,23 @@ export class SearchBoxInput {
     }
 
     public dispose() {
-        // TODO: Place the input node before the wrapper element, and then remove the wrapper element
+        this.removeWrapperElement();
         this.inputElement = null;
         this.browserEventManager.dispose();
+    }
+
+    private addWrapperElement() {
+        const inputElement = this.inputElement;
+
+        this.wrapperElement = document.createElement('div');
+        this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
+        inputElement.insertAdjacentElement('beforebegin', this.wrapperElement);
+        this.wrapperElement.appendChild(inputElement);
+    }
+
+    private removeWrapperElement() {
+        this.wrapperElement.insertAdjacentElement('beforebegin', this.inputElement);
+        this.wrapperElement.remove();
+        this.wrapperElement = null;
     }
 }
