@@ -11,6 +11,11 @@ export const DEFAULT_CLASS_NAMES = {
     searchBoxInput: {
         defaultClassName: "searchBox__input",
         wrapperClassName: "searchBox__wrapper"
+    },
+    searchBoxInputLoadingIndicator: {
+        defaultClassName: "searchBoxInput__loadingIndicator",
+        visibleClassName: "searchBoxInput__loadingIndicator--visible",
+        hiddenClassName: "searchBoxInput__loadingIndicator--hidden"
     }
 } as const;
 

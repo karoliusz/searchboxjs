@@ -10,6 +10,7 @@ $searchBoxButtonHoverColor: $searchBoxInputFocusedBg;
 $searchBoxButtonActiveColor: $searchBoxInputFocusedBg;
 $searchBoxButtonHoverBgColor: darken($searchBoxListBgColor, 5%);
 $searchBoxButtonActiveBgColor: darken($searchBoxListBgColor, 10%);
+$searchBoxInputWidth: 18em;
 
 @keyframes spin {
     0% {
@@ -20,20 +21,16 @@ $searchBoxButtonActiveBgColor: darken($searchBoxListBgColor, 10%);
     }
 }
 
-.searchBox {
-    position: relative;
-}
-
 .searchBox__input {
     border: none;
     border-radius: 1em;
     background-color: $searchBoxInputBg;
     padding: 0.5em 0.75em;
     line-height: 1;
-    height: 2em;
+    height: 3em;
     color: $searchBoxInputColor;
-    width: 12em;
-    padding-right: 2em;
+    width: $searchBoxInputWidth;
+    padding-right: 3em;
     font-size: inherit;
     font-family: inherit;
     font-weight: 400;
@@ -62,6 +59,7 @@ $searchBoxButtonActiveBgColor: darken($searchBoxListBgColor, 10%);
     font-size: $searchBoxBaseFontSize;
     font-weight: 400;
     margin: 1em 0 0.5em 0;
+    min-width: $searchBoxInputWidth;
 
     &:before {
         position: absolute;
@@ -146,3 +144,53 @@ $searchBoxButtonActiveBgColor: darken($searchBoxListBgColor, 10%);
     }
 }
 
+.searchBox__wrapper, .searchBox__wrapper *, .searchBoxList, .searchBoxList * {
+    box-sizing: border-box;
+}
+
+.searchBox__wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.searchBoxInput__loadingIndicator {
+    position: absolute;
+    overflow: hidden;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    right: 0.75em;
+    top: 50%;
+    margin-top: -0.75em;
+    animation: spin 1.25s linear infinite;
+
+    &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 50%;
+        background-color: $searchBoxListMessageColor;
+    }
+
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50%;
+        height: 50%;
+        background-color: $searchBoxListMessageColor;
+    }
+
+    &.searchBoxInput__loadingIndicator--hidden {
+        opacity: 0%;
+    }
+
+    &.searchBoxInput__loadingIndicator--visible {
+        opacity: 100%;
+    }
+}
