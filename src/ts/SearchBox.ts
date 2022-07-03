@@ -1,6 +1,6 @@
-import { debounceTime, distinctUntilChanged, filter, first, map, merge, skipUntil, Subscription, switchMap } from "rxjs";
-import { DEFAULT_CLASS_NAMES } from "./constants";
+import { debounceTime, filter, first, map, merge, skipUntil, Subscription, switchMap } from "rxjs";
 
+import { DEFAULT_CLASS_NAMES } from "./constants";
 import { SearchBoxDataSource } from "./dataLayer/interfaces";
 import { SearchBoxOptions } from "./interfaces";
 import { SearchBoxInput } from "./SearchBoxInput";
@@ -100,8 +100,6 @@ export class SearchBox<T> {
     }
 
     private onStateChange(event: SearchBoxState<T>) {
-        console.log('state changed', event);
-
         if (event.selectedItem && this.options.onItemSelect) {
             this.options.onItemSelect(event.selectedItem);
         }

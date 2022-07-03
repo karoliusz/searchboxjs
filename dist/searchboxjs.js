@@ -362,7 +362,6 @@ class SearchBox {
     this.inputValueSubscription.unsubscribe();
   }
   onStateChange(event) {
-    console.log("state changed", event);
     if (event.selectedItem && this.options.onItemSelect) {
       this.options.onItemSelect(event.selectedItem);
     }
