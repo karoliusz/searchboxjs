@@ -1,6 +1,10 @@
 export const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 
 export const DEFAULT_CLASS_NAMES = {
+    searchBox: {
+        focusedClassName: "searchBox__focused",
+        wrapperClassName: "searchBox__wrapper"
+    },
     searchBoxList: {
         defaultClassName: "searchBoxList",
         itemDefaultClassName: "searchBoxList__item",
@@ -9,8 +13,7 @@ export const DEFAULT_CLASS_NAMES = {
         loadingIndicatorClassName: "searchBoxList__loadingIndicator"
     },
     searchBoxInput: {
-        defaultClassName: "searchBox__input",
-        wrapperClassName: "searchBox__wrapper"
+        defaultClassName: "searchBox__input"
     },
     searchBoxInputLoadingIndicator: {
         defaultClassName: "searchBoxInput__loadingIndicator",

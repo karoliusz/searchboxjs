@@ -10,8 +10,6 @@ interface SearchBoxInputOptions {
 
 export class SearchBoxInput {
     private browserEventManager: BrowserEventManager = null;
-    private wrapperElement: HTMLDivElement = null;
-    private loadingIndicator: SearchBoxLoadingIndicator = null;
 
     constructor(
         private inputElement: HTMLInputElement,
@@ -32,42 +30,14 @@ export class SearchBoxInput {
 
             this.options.onValueChange && this.options.onValueChange(target.value);
         });
-
-        this.addWrapperElement();
-        this.loadingIndicator = new SearchBoxLoadingIndicator(this.wrapperElement);
     }
 
     public setFocus() {
         this.inputElement.focus();
     }
 
-    public showLoadingIndicator() {
-        this.loadingIndicator.show();
-    }
-
-    public hideLoadingIndicator() {
-        this.loadingIndicator.hide();
-    }
-
     public dispose() {
-        this.loadingIndicator.dispose();
-        this.removeWrapperElement();
         this.inputElement = null;
         this.browserEventManager.dispose();
-    }
-
-    private addWrapperElement() {
-        const inputElement = this.inputElement;
-
-        this.wrapperElement = document.createElement('div');
-        this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
-        inputElement.insertAdjacentElement('beforebegin', this.wrapperElement);
-        this.wrapperElement.appendChild(inputElement);
-    }
-
-    private removeWrapperElement() {
-        this.wrapperElement.insertAdjacentElement('beforebegin', this.inputElement);
-        this.wrapperElement.remove();
-        this.wrapperElement = null;
     }
 }
