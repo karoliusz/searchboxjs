@@ -2,7 +2,7 @@
   "name": "searchboxjs",
   "version": "0.0.1",
   "description": "Simple vanilla JS search box created for Frontendblog.pl",
-  "main": "dist/searchboxjs.mjs",
+  "main": "dist/searchboxjs.js",
   "types": "dist/searchboxjs.d.ts",
   "browserslist": "defaults",
   "scripts": {
