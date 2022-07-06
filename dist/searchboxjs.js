@@ -1,4 +1,3 @@
-import './scss/main.scss';
 import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime, merge, skipUntil, switchMap } from 'rxjs';
 
 const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
