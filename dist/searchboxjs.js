@@ -3,8 +3,9 @@ import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime
 const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 const DEFAULT_CLASS_NAMES = {
   searchBox: {
-    focusedClassName: "searchBox__focused",
-    wrapperClassName: "searchBox__wrapper"
+    focusedClassName: "searchBox--focused",
+    wrapperClassName: "searchBox__wrapper",
+    loadingClassName: "searchBox--loading"
   },
   searchBoxList: {
     defaultClassName: "searchBoxList",
@@ -336,9 +337,11 @@ class SearchBox {
   inputItemsSubscription;
   showLoadingIndicator() {
     this.loadingIndicator.show();
+    this.wrapperElement.classList.add(DEFAULT_CLASS_NAMES.searchBox.loadingClassName);
   }
   hideLoadingIndicator() {
     this.loadingIndicator.hide();
+    this.wrapperElement.classList.remove(DEFAULT_CLASS_NAMES.searchBox.loadingClassName);
   }
   dispose() {
     this.loadingIndicator.dispose();
