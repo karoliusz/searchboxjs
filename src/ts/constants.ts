@@ -2,8 +2,9 @@ export const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 
 export const DEFAULT_CLASS_NAMES = {
     searchBox: {
-        focusedClassName: "searchBox__focused",
-        wrapperClassName: "searchBox__wrapper"
+        focusedClassName: "searchBox--focused",
+        wrapperClassName: "searchBox__wrapper",
+        loadingClassName: "searchBox--loading"
     },
     searchBoxList: {
         defaultClassName: "searchBoxList",

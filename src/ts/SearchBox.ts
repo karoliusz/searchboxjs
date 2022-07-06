@@ -98,10 +98,12 @@ export class SearchBox<T> {
 
     showLoadingIndicator() {
         this.loadingIndicator.show();
+        this.wrapperElement.classList.add(DEFAULT_CLASS_NAMES.searchBox.loadingClassName);
     }
 
     hideLoadingIndicator() {
         this.loadingIndicator.hide();
+        this.wrapperElement.classList.remove(DEFAULT_CLASS_NAMES.searchBox.loadingClassName);
     }
 
     dispose() {
