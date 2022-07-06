@@ -26,15 +26,19 @@ declare class SearchBox<T> {
     private options;
     private input;
     private resultList;
-    private isInitializing;
-    private isInitialized;
+    private loadingIndicator;
+    private wrapperElement;
     private state;
     private stateSubscription;
     private inputValueSubscription;
     private inputItemsSubscription;
     constructor(inputElement: HTMLElement, dataSource: SearchBoxDataSource<T>, itemTemplate: string, searchKeys: Array<keyof T>, options?: SearchBoxOptions<T>);
+    showLoadingIndicator(): void;
+    hideLoadingIndicator(): void;
     dispose(): void;
     private onStateChange;
+    private addWrapperElement;
+    private removeWrapperElement;
 }
 
 declare class SearchBoxJSONDataSource<T> implements SearchBoxDataSource<T> {

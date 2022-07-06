@@ -3,6 +3,10 @@ import { BehaviorSubject, distinctUntilChanged, first, map, filter, debounceTime
 
 const SEARCH_BOX_LIST_DEFAULT_Z_INDEX = 10;
 const DEFAULT_CLASS_NAMES = {
+  searchBox: {
+    focusedClassName: "searchBox__focused",
+    wrapperClassName: "searchBox__wrapper"
+  },
   searchBoxList: {
     defaultClassName: "searchBoxList",
     itemDefaultClassName: "searchBoxList__item",
@@ -11,8 +15,7 @@ const DEFAULT_CLASS_NAMES = {
     loadingIndicatorClassName: "searchBoxList__loadingIndicator"
   },
   searchBoxInput: {
-    defaultClassName: "searchBox__input",
-    wrapperClassName: "searchBox__wrapper"
+    defaultClassName: "searchBox__input"
   },
   searchBoxInputLoadingIndicator: {
     defaultClassName: "searchBoxInput__loadingIndicator",
@@ -24,31 +27,6 @@ const TEXT = {
   noResultsFound: "Sorry, can't find a match for your search phrase!",
   loading: "Loading your results\u2026"
 };
-
-class SearchBoxLoadingIndicator {
-  constructor(wrapperElement) {
-    this.wrapperElement = wrapperElement;
-    this.spinnerElement = document.createElement("div");
-    this.spinnerElement.className = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator.defaultClassName;
-    this.wrapperElement.append(this.spinnerElement);
-    this.hide();
-  }
-  spinnerElement = null;
-  show() {
-    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
-    this.spinnerElement.classList.remove(hiddenClassName);
-    this.spinnerElement.classList.add(visibleClassName);
-  }
-  hide() {
-    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
-    this.spinnerElement.classList.remove(visibleClassName);
-    this.spinnerElement.classList.add(hiddenClassName);
-  }
-  dispose() {
-    this.spinnerElement.remove();
-    this.spinnerElement = null;
-  }
-}
 
 class BrowserEventManager {
   constructor(element) {
@@ -136,38 +114,39 @@ class SearchBoxInput {
       const target = event.target;
       this.options.onValueChange && this.options.onValueChange(target.value);
     });
-    this.addWrapperElement();
-    this.loadingIndicator = new SearchBoxLoadingIndicator(this.wrapperElement);
   }
   browserEventManager = null;
-  wrapperElement = null;
-  loadingIndicator = null;
   setFocus() {
     this.inputElement.focus();
   }
-  showLoadingIndicator() {
-    this.loadingIndicator.show();
-  }
-  hideLoadingIndicator() {
-    this.loadingIndicator.hide();
-  }
   dispose() {
-    this.loadingIndicator.dispose();
-    this.removeWrapperElement();
     this.inputElement = null;
     this.browserEventManager.dispose();
   }
-  addWrapperElement() {
-    const inputElement = this.inputElement;
-    this.wrapperElement = document.createElement("div");
-    this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBoxInput.wrapperClassName;
-    inputElement.insertAdjacentElement("beforebegin", this.wrapperElement);
-    this.wrapperElement.appendChild(inputElement);
+}
+
+class SearchBoxLoadingIndicator {
+  constructor(wrapperElement) {
+    this.wrapperElement = wrapperElement;
+    this.spinnerElement = document.createElement("div");
+    this.spinnerElement.className = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator.defaultClassName;
+    this.wrapperElement.append(this.spinnerElement);
+    this.hide();
   }
-  removeWrapperElement() {
-    this.wrapperElement.insertAdjacentElement("beforebegin", this.inputElement);
-    this.wrapperElement.remove();
-    this.wrapperElement = null;
+  spinnerElement = null;
+  show() {
+    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
+    this.spinnerElement.classList.remove(hiddenClassName);
+    this.spinnerElement.classList.add(visibleClassName);
+  }
+  hide() {
+    const { hiddenClassName, visibleClassName } = DEFAULT_CLASS_NAMES.searchBoxInputLoadingIndicator;
+    this.spinnerElement.classList.remove(visibleClassName);
+    this.spinnerElement.classList.add(hiddenClassName);
+  }
+  dispose() {
+    this.spinnerElement.remove();
+    this.spinnerElement = null;
   }
 }
 
@@ -336,32 +315,45 @@ class SearchBox {
       onBlur: () => this.state.setState({ resultListFocused: false }),
       onItemSelect: (item) => this.state.setState({ selectedItem: item })
     });
+    this.addWrapperElement();
+    this.loadingIndicator = new SearchBoxLoadingIndicator(this.wrapperElement);
     this.stateSubscription = this.state.state$.subscribe((event) => this.onStateChange(event));
     const firstFocus$ = this.state.state$.pipe(first((state) => state?.inputFocused), map(() => ""));
-    const inputValue$ = this.state.state$.pipe(filter((state) => !state?.inputValue || state?.inputValue.length >= minSearchValueLength), map((state) => state.inputValue || ""), debounceTime(500));
+    const inputValue$ = this.state.state$.pipe(distinctUntilChanged((a, b) => a?.inputValue === b?.inputValue), filter((state) => !state?.inputValue || state?.inputValue.length >= minSearchValueLength), map((state) => state.inputValue || ""), debounceTime(500));
     const inputItems$ = merge(firstFocus$, inputValue$).pipe(skipUntil(firstFocus$), switchMap((value) => this.dataSource.getItems(value, 10, this.searchKeys)));
-    this.inputValueSubscription = merge(firstFocus$, inputValue$).pipe(skipUntil(firstFocus$)).subscribe(() => this.input.showLoadingIndicator());
+    this.inputValueSubscription = merge(firstFocus$, inputValue$).pipe(skipUntil(firstFocus$)).subscribe(() => this.showLoadingIndicator());
     this.inputItemsSubscription = inputItems$.subscribe((items) => {
       this.resultList.setItems(items);
-      this.input.hideLoadingIndicator();
+      this.hideLoadingIndicator();
     });
   }
   input = null;
   resultList = null;
-  isInitializing = false;
-  isInitialized = false;
+  loadingIndicator = null;
+  wrapperElement = null;
   state = null;
   stateSubscription;
   inputValueSubscription;
   inputItemsSubscription;
+  showLoadingIndicator() {
+    this.loadingIndicator.show();
+  }
+  hideLoadingIndicator() {
+    this.loadingIndicator.hide();
+  }
   dispose() {
+    this.loadingIndicator.dispose();
+    this.removeWrapperElement();
     this.input.dispose();
     this.resultList.dispose();
     this.inputElement = null;
     this.stateSubscription.unsubscribe();
     this.inputValueSubscription.unsubscribe();
+    this.inputItemsSubscription.unsubscribe();
   }
   onStateChange(event) {
+    const { searchBox: { focusedClassName } } = DEFAULT_CLASS_NAMES;
+    const hasFocusedClass = this.wrapperElement?.classList.contains(focusedClassName);
     if (event.selectedItem && this.options.onItemSelect) {
       this.options.onItemSelect(event.selectedItem);
     }
@@ -370,6 +362,23 @@ class SearchBox {
     } else if (!event.resultListFocused) {
       this.resultList.hide();
     }
+    if (event.inputFocused || event.resultListFocused) {
+      !hasFocusedClass && this.wrapperElement.classList.add(focusedClassName);
+    } else {
+      hasFocusedClass && this.wrapperElement.classList.remove(focusedClassName);
+    }
+  }
+  addWrapperElement() {
+    const inputElement = this.inputElement;
+    this.wrapperElement = document.createElement("div");
+    this.wrapperElement.className = DEFAULT_CLASS_NAMES.searchBox.wrapperClassName;
+    inputElement.insertAdjacentElement("beforebegin", this.wrapperElement);
+    this.wrapperElement.appendChild(inputElement);
+  }
+  removeWrapperElement() {
+    this.wrapperElement.insertAdjacentElement("beforebegin", this.inputElement);
+    this.wrapperElement.remove();
+    this.wrapperElement = null;
   }
 }
 
