@@ -116,6 +116,9 @@ export class SearchBox<T> {
     }
 
     private onStateChange(event: SearchBoxState<T>) {
+        const { searchBox: { focusedClassName } } = DEFAULT_CLASS_NAMES;
+        const hasFocusedClass = this.wrapperElement?.classList.contains(focusedClassName);
+
         if (event.selectedItem && this.options.onItemSelect) {
             this.options.onItemSelect(event.selectedItem);
         }
@@ -124,6 +127,12 @@ export class SearchBox<T> {
             this.resultList.show();
         } else if (!event.resultListFocused) {
             this.resultList.hide();
+        }
+
+        if (event.inputFocused || event.resultListFocused) {
+            !hasFocusedClass && this.wrapperElement.classList.add(focusedClassName);
+        } else {
+            hasFocusedClass && this.wrapperElement.classList.remove(focusedClassName);
         }
     }
 
