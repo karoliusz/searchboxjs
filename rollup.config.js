@@ -10,8 +10,8 @@ const iifeName = 'SearchBoxJS';
 const configs = [
   defineConfig({
     input: 'src/index.ts',
-    external: ['rxjs', 'rxjs/operators', './scss/main.scss'],
-    plugins: [esbuild()],
+    external: ['rxjs', 'rxjs/operators'],
+    plugins: [esbuild(), scss({ output: false })],
     output: [
       {
         file: `dist/${scriptFileName}.js`,
